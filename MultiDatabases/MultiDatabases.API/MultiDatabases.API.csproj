@@ -10,4 +10,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MultiDatabases.Application\MultiDatabases.Application.csproj" />
+    <ProjectReference Include="..\MultiDatabases.Domain\MultiDatabases.Domain.csproj" />
+    <ProjectReference Include="..\MultiDatabases.Infrastructure\MultiDatabases.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

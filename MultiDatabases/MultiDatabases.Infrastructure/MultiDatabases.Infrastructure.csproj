@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\DatabaseA\Repositories\" />
+    <Folder Include="Persistence\DatabaseB\Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiDatabases.Application\MultiDatabases.Application.csproj" />
+    <ProjectReference Include="..\MultiDatabases.Domain\MultiDatabases.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
