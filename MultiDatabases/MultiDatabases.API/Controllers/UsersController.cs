@@ -8,16 +8,16 @@ namespace MultiDatabases.API.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IGetAllUsersQuery _allUsersQuery;
+    private readonly IUserRepositoryResolver _userRepositoryResolver;
 
-    public UsersController(IGetAllUsersQuery allUsersQuery)
+    public UsersController(IUserRepositoryResolver userRepositoryResolver)
     {
-        _allUsersQuery = allUsersQuery;
+        _userRepositoryResolver = userRepositoryResolver;
     }
 
     [HttpGet("{databaseName}")]
     public async Task<IEnumerable<User>> Get([FromRoute] string databaseName, CancellationToken cancellationToken)
     {
-        return await _allUsersQuery.Execute(databaseName, cancellationToken);
+        return await _userRepositoryResolver.Resolve(databaseName).GetAllUsers(cancellationToken);
     }
 }
