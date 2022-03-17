@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MultiDatabases.Application.Features.Users;
 using MultiDatabases.Infrastructure.Persistence.DatabaseA;
 using MultiDatabases.Infrastructure.Persistence.DatabaseA.Repositories;
@@ -8,21 +9,67 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-// Add services to the container.
-
 services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
+services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+services.AddScoped(provider =>
+{
+    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+    var dbName = httpContextAccessor?.HttpContext?.Request.Query["databaseName"].FirstOrDefault();
+
+    string connectionString;
+
+    if (dbName == null)
+    {
+        connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
+    else
+    {
+        connectionString = configuration.GetConnectionString("AAA");
+        connectionString = connectionString.Replace("{dbName}", dbName);
+    }
+
+    return new DbContextA(connectionString);
+});
+
+services.AddScoped(_ => new DbContextB(configuration.GetConnectionString("BBB")));
+
 services.AddScoped<IGetAllUsersQuery, GetAllUsersQuery>();
 services.AddScoped<IUserRepositoryResolver, UserRepositoryResolver>();
-services.AddScoped<IDictionary<string, IUsersRepository>>(_ => new Dictionary<string, IUsersRepository>
+services.AddScoped<IDictionary<string, IUsersRepository>>((services) => new Dictionary<string, IUsersRepository>
 {
-    {"AAA01", new DatabaseAUserRepository(new DbContextA(configuration.GetConnectionString("AAA01")))},
-    {"AAA02", new DatabaseAUserRepository(new DbContextA(configuration.GetConnectionString("AAA02")))},
-    {"BBB", new DatabaseBUserRepository(new DbContextB(configuration.GetConnectionString("BBB")))},
+    {"AAA01", new DatabaseAUserRepository(services.GetRequiredService<DbContextA>())},
+    {"AAA02", new DatabaseAUserRepository(services.GetRequiredService<DbContextA>())},
+    {"BBB", new DatabaseBUserRepository(services.GetRequiredService<DbContextB>())},
 });
+
+//services.AddDbContext<DbContextA>((serviceProvider, optionsBuilder) =>
+//{
+//    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+//    var dbName = httpContextAccessor?.HttpContext?.Request.Query["database"].First();
+
+//    string connectionString;
+
+//    if (dbName == null)
+//    {
+//        connectionString = configuration.GetConnectionString("DefaultConnection");
+//    }
+//    else
+//    {
+//        connectionString = configuration.GetConnectionString("AAA");
+//        connectionString = connectionString.Replace("{dbName}", dbName);
+//    }
+
+//    optionsBuilder.UseSqlServer(connectionString);
+//});
+
+//services.AddDbContext<DbContextB>(optionsBuilder =>
+//{
+//    optionsBuilder.UseSqlServer(configuration.GetConnectionString("BBB"));
+//});
 
 //builder.Services.AddTransient<ServiceResolver>(serviceProvider => key =>
 //{

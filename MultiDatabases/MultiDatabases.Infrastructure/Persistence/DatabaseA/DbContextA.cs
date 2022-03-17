@@ -1,8 +1,9 @@
-﻿using MultiDatabases.Infrastructure.Persistence.DatabaseA.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MultiDatabases.Infrastructure.Persistence.DatabaseA.Models;
 
 namespace MultiDatabases.Infrastructure.Persistence.DatabaseA;
 
-public class DbContextA
+public class DbContextA : DbContext
 {
     public string ConnectionString { get; }
     public IEnumerable<Usuario> Usuarios { get; }

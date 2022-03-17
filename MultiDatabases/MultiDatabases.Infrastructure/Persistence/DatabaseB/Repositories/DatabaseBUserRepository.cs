@@ -12,6 +12,8 @@ public class DatabaseBUserRepository : IUsersRepository
         _dbContext = dbContext;
     }
 
+    public string ConnectionString => _dbContext.ConnectionString;
+
     public async Task<IEnumerable<User>> GetAllUsers(CancellationToken token = default)
     {
         var usuarios = await Task.FromResult(_dbContext.Usuaris.ToList());

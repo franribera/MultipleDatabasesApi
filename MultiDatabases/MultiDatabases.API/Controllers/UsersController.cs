@@ -15,9 +15,23 @@ public class UsersController : ControllerBase
         _userRepositoryResolver = userRepositoryResolver;
     }
 
-    [HttpGet("{databaseName}")]
-    public async Task<IEnumerable<User>> Get([FromRoute] string databaseName, CancellationToken cancellationToken)
+    [HttpGet]
+    public async Task<UsersResponse> Get([FromQuery] string databaseName, CancellationToken cancellationToken)
     {
-        return await _userRepositoryResolver.Resolve(databaseName).GetAllUsers(cancellationToken);
+        var repository = _userRepositoryResolver.Resolve(databaseName);
+
+        var users = await repository.GetAllUsers(cancellationToken);
+
+        return new UsersResponse
+        {
+            ConnectionString = repository.ConnectionString,
+            Users = users
+        };
     }
+}
+
+public class UsersResponse
+{
+    public string ConnectionString { get; set; }
+    public IEnumerable<User> Users { get; set; }
 }
